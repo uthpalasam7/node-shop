@@ -1,28 +1,29 @@
+require('dotenv').config();
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
+
+// Access the connection string from the environment variable
+const uri = process.env.MONGO_URI;
 
 let _db;
 
 const mongoConnect = callback => {
-  MongoClient.connect(
-    'mongodb+srv://maximilian:9u4biljMQc4jjqbe@cluster0-ntrwp.mongodb.net/shop?retryWrites=true'
-  )
-    .then(client => {
-      console.log('Connected!');
-      _db = client.db();
-      callback();
+    MongoClient.connect(uri).then(client => {
+        console.log('Connected!');
+        _db = client.db();
+        callback();
     })
-    .catch(err => {
-      console.log(err);
-      throw err;
-    });
+        .catch(err => {
+            console.log(err);
+            throw err;
+        });
 };
 
 const getDb = () => {
-  if (_db) {
-    return _db;
-  }
-  throw 'No database found!';
+    if (_db) {
+        return _db;
+    }
+    throw 'No database found!';
 };
 
 exports.mongoConnect = mongoConnect;
