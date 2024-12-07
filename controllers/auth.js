@@ -71,7 +71,7 @@ exports.postLogin = (req, res, next) => {
         });
     }
 
-    User.findOne({email: email})
+    User.findOne({ email: email })
         .then(user => {
             if (!user) {
                 return res.status(422).render('auth/login', {
@@ -112,7 +112,11 @@ exports.postLogin = (req, res, next) => {
                     res.redirect('/login');
                 });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -141,21 +145,23 @@ exports.postSignup = (req, res, next) => {
             const user = new User({
                 email: email,
                 password: hashedPassword,
-                cart: {items: []}
+                cart: { items: [] }
             });
             return user.save();
         })
         .then(result => {
             res.redirect('/login');
-            return transporter.sendMail({
-                to: email,
-                from: 'uthkasam@gmail.com',
-                subject: 'Signup succeeded!',
-                html: '<h1>You successfully signed up!</h1>'
-            });
+            // return transporter.sendMail({
+            //   to: email,
+            //   from: 'shop@node-complete.com',
+            //   subject: 'Signup succeeded!',
+            //   html: '<h1>You successfully signed up!</h1>'
+            // });
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 };
 
@@ -187,7 +193,7 @@ exports.postReset = (req, res, next) => {
             return res.redirect('/reset');
         }
         const token = buffer.toString('hex');
-        User.findOne({email: req.body.email})
+        User.findOne({ email: req.body.email })
             .then(user => {
                 if (!user) {
                     req.flash('error', 'No account with that email found.');
@@ -201,7 +207,7 @@ exports.postReset = (req, res, next) => {
                 res.redirect('/');
                 transporter.sendMail({
                     to: req.body.email,
-                    from: 'uthkasam@gmail.com',
+                    from: 'shop@node-complete.com',
                     subject: 'Password reset',
                     html: `
             <p>You requested a password reset</p>
@@ -210,15 +216,16 @@ exports.postReset = (req, res, next) => {
                 });
             })
             .catch(err => {
-                console.log(err);
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
             });
     });
 };
 
-
 exports.getNewPassword = (req, res, next) => {
     const token = req.params.token;
-    User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}})
+    User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
         .then(user => {
             let message = req.flash('error');
             if (message.length > 0) {
@@ -235,7 +242,9 @@ exports.getNewPassword = (req, res, next) => {
             });
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 };
 
@@ -247,7 +256,7 @@ exports.postNewPassword = (req, res, next) => {
 
     User.findOne({
         resetToken: passwordToken,
-        resetTokenExpiration: {$gt: Date.now()},
+        resetTokenExpiration: { $gt: Date.now() },
         _id: userId
     })
         .then(user => {
@@ -264,6 +273,8 @@ exports.postNewPassword = (req, res, next) => {
             res.redirect('/login');
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 };
