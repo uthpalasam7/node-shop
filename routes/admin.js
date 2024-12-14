@@ -20,12 +20,11 @@ router.post(
     [
         body('title')
             .isString()
-            .isLength({ min: 3 })
+            .isLength({min: 3})
             .trim(),
-        // body('imageUrl').isURL(),
         body('price').isFloat(),
         body('description')
-            .isLength({ min: 5, max: 400 })
+            .isLength({min: 5, max: 400})
             .trim()
     ],
     isAuth,
@@ -39,18 +38,17 @@ router.post(
     [
         body('title')
             .isString()
-            .isLength({ min: 3 })
+            .isLength({min: 3})
             .trim(),
-        // body('imageUrl').isURL(),
         body('price').isFloat(),
         body('description')
-            .isLength({ min: 5, max: 400 })
+            .isLength({min: 5, max: 400})
             .trim()
     ],
     isAuth,
     adminController.postEditProduct
 );
 
-router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+router.delete('/product/:productId', isAuth, adminController.deleteProduct);
 
 module.exports = router;
